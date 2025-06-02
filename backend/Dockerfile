@@ -11,7 +11,9 @@ RUN go mod tidy
 RUN go build -o focusio-back main.go
 
 # Step 2: execution
-FROM debian:bullseye-slim
+FROM debian:ubuntu:bulleye-slim
+
+RUN apt update && apt install -y build-essential
 
 WORKDIR /backend
 COPY --from=build /backend/focusio-back .
