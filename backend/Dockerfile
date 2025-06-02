@@ -1,24 +1,23 @@
-# Dockerfile
-
-# Step 1: build
-
+# Step 1: Build statically linked Go binary
 FROM golang:1.24.3 AS build
 
 WORKDIR /backend
+
 COPY . .
 
-RUN go mod tidy
-RUN go build -o focusio-back main.go
+# Static build without glib c
+# CGO_ENABLED=0: disables CGO (C language interoperability) which forces Go to compile a fully static binary without any external C library dependencies like glibc
+# GOOS=linux: tells Go to build the binary for Linux OS
+# GOARCH=amd64: tells Go to build the binary for 64-bit x86 architecture
 
-# Step 2: execution
-FROM debian:ubuntu:bulleye-slim
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o focusio-back main.go
 
-RUN apt update && apt install -y build-essential
+FROM scratch
 
-WORKDIR /backend
 COPY --from=build /backend/focusio-back .
 
 EXPOSE 8080
 
 CMD ["./focusio-back"]
+
 
