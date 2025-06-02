@@ -2,7 +2,7 @@
 
 # Step 1: build
 
-FROM golang:1.22 AS build
+FROM golang:1.24.3 AS build
 
 WORKDIR /backend
 COPY . .
