@@ -20,3 +20,38 @@ sqlc generate
 
 
 sqlc
+BOILER PLATE SETUP
+Simple and scalable file structure
+├── Dockerfile
+├── cmd
+│   └── main.go
+├── db
+│   ├── generated
+│   │   ├── db.go
+│   │   ├── models.go
+│   │   └── users.sql.go
+│   ├── migrations
+│   │   ├── 20250605212305_create_table_users.down.sql
+│   │   └── 20250605212305_create_table_users.up.sql
+│   ├── queries
+│   │   └── users.sql
+│   └── sqlc.yaml
+├── go.mod
+├── go.sum
+└── internal
+    ├── api
+    └── db
+
+create a sqlc.yaml
+mkdir -p backend/migrations backend/queries
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "./queries"
+    schema: "./migrations"
+    gen:
+      go:
+        package: "db"
+        out: "./generated"
+        sql_package: "pgx/v5"
+

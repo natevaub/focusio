@@ -16,13 +16,13 @@ INSERT INTO users (
 ) VALUES (
   $1, $2, $3
 )
-RETURNING id, username, email, password
+RETURNING id, username, email, password, created_at, updated_at
 `
 
 type CreateUserParams struct {
-	Username string
-	Email    string
-	Password string
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 // INSERTION
@@ -34,6 +34,8 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Username,
 		&i.Email,
 		&i.Password,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -45,13 +47,13 @@ WHERE id = $1
 `
 
 // DELETION
-func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
+func (q *Queries) DeleteUser(ctx context.Context, id int32) error {
 	_, err := q.db.Exec(ctx, deleteUser, id)
 	return err
 }
 
 const getAllUsers = `-- name: GetAllUsers :many
-SELECT id, username, email, password FROM users
+SELECT id, username, email, password, created_at, updated_at FROM users
 `
 
 func (q *Queries) GetAllUsers(ctx context.Context) ([]User, error) {
@@ -68,6 +70,8 @@ func (q *Queries) GetAllUsers(ctx context.Context) ([]User, error) {
 			&i.Username,
 			&i.Email,
 			&i.Password,
+			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -81,12 +85,12 @@ func (q *Queries) GetAllUsers(ctx context.Context) ([]User, error) {
 
 const getUser = `-- name: GetUser :one
 
-SELECT id, username, email, password FROM users
+SELECT id, username, email, password, created_at, updated_at FROM users
 WHERE id = $1 LIMIT 1
 `
 
 // SELECTION
-func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
+func (q *Queries) GetUser(ctx context.Context, id int32) (User, error) {
 	row := q.db.QueryRow(ctx, getUser, id)
 	var i User
 	err := row.Scan(
@@ -94,6 +98,8 @@ func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
 		&i.Username,
 		&i.Email,
 		&i.Password,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -105,14 +111,14 @@ SET username = $2,
     email = $3,
     password = $4
 WHERE id = $1
-RETURNING id, username, email, password
+RETURNING id, username, email, password, created_at, updated_at
 `
 
 type UpdateUserParams struct {
-	ID       int64
-	Username string
-	Email    string
-	Password string
+	ID       int32  `json:"id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 // UPDATE
@@ -129,6 +135,8 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.Username,
 		&i.Email,
 		&i.Password,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
